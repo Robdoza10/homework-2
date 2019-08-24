@@ -1,0 +1,83 @@
+Sub Ticker()
+    Dim ws As Worksheet
+    headers = Array("Ticker", "Percent Change", "Yearly Change", "Total Stock Volume")
+      For Each ws In Worksheets
+        ws.Select
+        'Sets the headers on Each Worksheet
+        Range("I1:L1").Value = headers
+        Range("I1:L1").Font.Bold = True
+        Range("I:L").EntireColumn.AutoFit
+        Range("I:L").EntireColumn.AutoFit
+      
+  ' Set up variables to be used
+        Dim Ticker As String
+        Dim Volume_Total As Double
+        Dim lastrow As Long
+       
+       'Keep Track of each Ticker
+        Dim Summary_Table_Row As Integer
+        Summary_Table_Row = 2
+        Volume_Total = 0
+       
+       'Set Open Year Date
+        Dim Open_Date As Boolean
+        Open_Date = True
+        Dim Open_Price As Double
+        Dim Close_Price As Double
+        Dim Yearly_Change As Double
+        Dim Percent_Change As Double
+    
+       'Determines Last Row Automatically
+        lastrow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+  
+    ' Initiate Loop through all stocks
+  For i = 2 To lastrow
+    ' If clause to detect difference in stock tickers in column 1
+        If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+      ' Set the ticker
+        Ticker = Cells(i, 1).Value
+      ' Add to the Stock Volume Total
+        Volume_Total = Volume_Total + Cells(i, 7).Value
+        
+        ' Print the All Header Columns
+        Range("I" & Summary_Table_Row).Value = Ticker
+        Range("J" & Summary_Table_Row).Value = Percent_Change
+        Range("K" & Summary_Table_Row).Value = Yearly_Change
+        Range("J" & Summary_Table_Row).NumberFormat = "0.00%"
+        Range("L" & Summary_Table_Row).Value = Volume_Total
+        
+    ' Print the Total Volume for ticker in Column J
+    'Add one to the summary table row
+        Summary_Table_Row = Summary_Table_Row + 1
+      
+    ' Reset the The Counter for Stock volume
+        Volume_Total = 0
+    'Set Open price for Stock
+        Open_Date = True
+    ' Calculate Yearly change from close of year from open
+        If Cells(i, 3).Value = "20160101" Then
+            Cells(i, 4).Value = Open_Price
+        
+        End If
+        
+        Close_Price = Cells(i, 6).Value
+        Yearly_Change = Close_Price - Open_Price
+        
+    'Print Yearly Change into Summary Column
+        Range("K" & Summary_Table_Row).Value = Yearly_Change
+      
+   ' If the next cell contains the same ticker or else...
+    Else
+      ' Add to the Total Stock Volume to the next unique ticker
+      Volume_Total = Volume_Total + Cells(i, 7).Value
+      'Get Stock Price for next ticker.
+        If Open_Date And Cells(i, 3).Value <> 0 Then
+            Open_Year_Price = Cells(i, 3).Value
+            Open_Date = False
+        End If
+    End If
+  Next i
+  
+  Next ws
+   
+End Sub
